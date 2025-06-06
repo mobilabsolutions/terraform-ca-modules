@@ -4,11 +4,11 @@ resource "azurerm_resource_group" "rg_backup_001" {
   tags     = var.tags
 }
 
-# resource "azurerm_resource_group" "rg_backup_snapshots_001" {
-#   name     = "AzureBackupRG_${var.location}_1"
-#   location = var.location
-#   tags     = var.tags
-# }
+resource "azurerm_resource_group" "rg_backup_snapshots_001" {
+  name     = "AzureBackupRG_${var.location}_1"
+  location = var.location
+  tags     = var.tags
+}
 
 resource "azurerm_recovery_services_vault" "grs_vault_001" {
   name                = "rsv-grs-${var.workload}-${var.location_abbreviation}-${var.environment}-001"
@@ -17,10 +17,7 @@ resource "azurerm_recovery_services_vault" "grs_vault_001" {
   sku                 = "RS0"
   storage_mode_type   = "GeoRedundant"
   soft_delete_enabled = true
-
-  # immutability                  = "Unlocked"
-  # public_network_access_enabled = true
-  # tags                          = var.tags
+  tags                = var.tags
 }
 
 resource "azurerm_recovery_services_vault" "lrs_vault_001" {
@@ -30,10 +27,7 @@ resource "azurerm_recovery_services_vault" "lrs_vault_001" {
   sku                 = "RS0"
   storage_mode_type   = "LocallyRedundant"
   soft_delete_enabled = true
-
-  # immutability                  = "Unlocked"
-  # public_network_access_enabled = true
-  # tags                          = var.tags
+  tags                = var.tags
 }
 
 
@@ -390,7 +384,7 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostic_setting_grs_001" {
   }
 
   metric {
-    category = "Health"
+    category = "AllMetrics"
   }
 }
 
@@ -406,6 +400,6 @@ resource "azurerm_monitor_diagnostic_setting" "diagnostic_setting_lrs_001" {
   }
 
   metric {
-    category = "Health"
+    category = "AllMetrics"
   }
 }

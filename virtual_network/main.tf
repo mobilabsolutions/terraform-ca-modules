@@ -14,15 +14,15 @@ resource "azurerm_virtual_network" "vnet" {
 }
 
 resource "azurerm_subnet" "snet" {
-  for_each = var.subnets
+  for_each = var.subnet_prefixes
 
   name                 = each.key
-  address_prefixes     = [each.value.address_prefix]
+  address_prefixes     = [each.value]
   resource_group_name  = azurerm_resource_group.rg_vnet.name
   virtual_network_name = azurerm_virtual_network.vnet.name
 
   dynamic "delegation" {
-    for_each = each.value.delegation
+    for_each = lookup(var.subnet_delegations, each.key, [])
     content {
       name = delegation.value.name
 

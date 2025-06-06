@@ -34,12 +34,9 @@ variable "dns_outbound_pe_subnet_id" {
 }
 
 variable "dns_forwarding_rules" {
-  description = "Map of DNS forwarding rules"
-  type = map(object({
-    domain_name        = string
-    target_dns_servers = list(string)
-  }))
-  default = {}
+  description = "List of domain names and DNS servers IP addresses for DNS resolver rules"
+  type        = map(list(string))
+  default     = {}
 }
 
 variable "virtual_network_ids" {

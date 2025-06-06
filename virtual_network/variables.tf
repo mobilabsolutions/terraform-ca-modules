@@ -26,48 +26,41 @@ variable "virtual_network_address_space" {
   type = list(string)
 }
 
-# variable "firewall_enabled" {
-#   description = "(Required) Specifies if the Azure Firewall should be enabled."
+variable "subnet_prefixes" {
+  description = "(Required) The IP address ranges for Subnets of the Virtual Network."
 
-#   type    = bool
-#   default = false
-# }
+  type = map(string)
+}
 
-# variable "bastion_enabled" {
-#   description = "(Required) Specifies if the Azure Bastion should be enabled."
+variable "subnet_delegations" {
+  description = <<EOF
+  Some subnets require Delegations, for instance, subnets of DNS resolver private endpoints
+  in the DNS zone. This variable allows you to define those delegations.
+  Example:
+    subnet_delegations = {
+      snet-dnsie-prod-001 = [{
+        name = "Microsoft.Network.dnsResolvers"
+        service_delegation = {
+          name    = "Microsoft.Network/dnsResolvers"
+          actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+          }
+        }]
+      snet-dnsoe-prod-001 = [{
+        name = "Microsoft.Network.dnsResolvers"
+      service_delegation = {
+        name    = "Microsoft.Network/dnsResolvers"
+        actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+        }
+      }]
+    } 
+  EOF 
 
-#   type    = bool
-#   default = false
-# }
-
-# variable "virtual_network_gateway_enabled" {
-#   description = "(Required) Specifies if the Azure Virtual Network Gateway should be enabled."
-
-#   type    = bool
-#   default = false
-
-# }
-
-# variable "application_gateway_enabled" {
-#   description = "(Required) Specifies if the Azure Application Gateway should be enabled."
-
-#   type    = bool
-#   default = false
-
-# }
-
-# #New version of subnet variable
-variable "subnets" {
-  description = "Map of subnets with their address prefixes and optional delegations."
-  type = map(object({
-    address_prefix = string
-    delegation = list(object({
-      name = string
-      service_delegation = object({
-        name    = string
-        actions = list(string)
-      })
-    }))
-  }))
+  type = map(list(object({
+    name = string
+    service_delegation = object({
+      name    = string
+      actions = list(string)
+    })
+  })))
   default = {}
 }

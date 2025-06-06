@@ -6,7 +6,7 @@ resource "azurerm_policy_definition" "require_tag_on_resource_groups" {
   mode                = "All"
   display_name        = "Require a tag '${each.key}' with specific values"
   description         = "Ensures that the '${each.key}' tag exists with approved values."
-  management_group_id = "/providers/Microsoft.Management/managementGroups/${var.top_mg_id}"
+  management_group_id = "/providers/Microsoft.Management/managementGroups/${var.top_management_group_id}"
 
   metadata = <<METADATA
         {

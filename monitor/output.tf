@@ -15,3 +15,13 @@ output "log_analytics_workspace_id" {
 
   description = "The ID of the Log Analytics Workspace."
 }
+
+output "windows_data_collection_rule_id" {
+  value       = azurerm_monitor_data_collection_rule.dcr_windows.id
+  description = "The ID of the Data Collection Rule for Windows. This will be used to associate with the Windows Virtual Machine."
+}
+
+output "linux_data_collection_rule_id" {
+  value       = azurerm_monitor_data_collection_rule.dcr_linux.id
+  description = "The ID of the Data Collection Rule for Linux. This will be used to associate with the Linux Virtual Machine."
+}

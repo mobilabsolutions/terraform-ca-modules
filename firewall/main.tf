@@ -4,12 +4,11 @@ resource "azurerm_public_ip" "pip_firewall_01" {
   resource_group_name = var.resource_group_name
   location            = var.location
   allocation_method   = "Static"
-
-  tags = var.tags
+  tags                = var.tags
 }
 
 resource "azurerm_firewall" "firewall" {
-  depends_on = [ azurerm_public_ip.pip_firewall_01 ]
+  depends_on = [azurerm_public_ip.pip_firewall_01]
 
   name                = "afw-${var.workload}-${var.location_abbreviation}-${var.environment}-001"
   location            = azurerm_public_ip.pip_firewall_01.location

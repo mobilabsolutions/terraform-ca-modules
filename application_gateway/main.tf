@@ -14,14 +14,14 @@ resource "azurerm_public_ip" "pip_application_gateway_01" {
   resource_group_name = var.resource_group_name
   location            = var.location
   allocation_method   = "Static"
-
-  tags = var.tags
+  tags                = var.tags
 }
 
 resource "azurerm_application_gateway" "application_gateway" {
   name                = "agw-${var.workload}-${var.location_abbreviation}-${var.environment}-001"
   resource_group_name = var.resource_group_name
   location            = var.location
+  tags                = var.tags
 
   sku {
     name = "Standard_v2"

@@ -13,7 +13,7 @@ resource "azurerm_maintenance_configuration" "mc_non_prod" {
   window {
     duration        = "03:55"
     recur_every     = "1Month Second Tuesday Offset4"
-    start_date_time = formatdate("YYYY-MM-DD' ${var.start_time}'", timestamp())
+    start_date_time = var.start_time
     time_zone       = var.time_zone
   }
 
@@ -43,7 +43,7 @@ resource "azurerm_maintenance_configuration" "mc_prod" {
   window {
     duration        = "03:55"
     recur_every     = "1Month Third Tuesday Offset4"
-    start_date_time = formatdate("YYYY-MM-DD' ${var.start_time}'", timestamp())
+    start_date_time = var.start_time
     time_zone       = var.time_zone
   }
 
@@ -62,4 +62,18 @@ resource "azurerm_maintenance_configuration" "mc_prod" {
   }
   in_guest_user_patch_mode = "User"
   tags                     = var.tags
+}
+
+resource "azurerm_maintenance_assignment_dynamic_scope" "mc_dynamic_scope" {
+  for_each = var.environments_list
+
+  name                         = each.key
+  maintenance_configuration_id = each.key == "prd" ? resource.azurerm_maintenance_configuration.mc_prod.id : resource.azurerm_maintenance_configuration.mc_non_prod.id
+
+  filter {
+    tags {
+      tag    = "Environment"
+      values = [each.key]
+    }
+  }
 }

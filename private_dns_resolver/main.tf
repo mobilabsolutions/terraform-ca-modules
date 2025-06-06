@@ -42,15 +42,16 @@ resource "azurerm_private_dns_resolver_dns_forwarding_ruleset" "dnsfrs" {
 resource "azurerm_private_dns_resolver_forwarding_rule" "dnsfr" {
   for_each = var.dns_forwarding_rules
 
-  name                      = each.key
+  name                      = trim(replace(each.key, ".", "_"), "_")
   dns_forwarding_ruleset_id = azurerm_private_dns_resolver_dns_forwarding_ruleset.dnsfrs.id
-  domain_name               = each.value.domain_name
+  domain_name               = each.key
   enabled                   = true
 
   dynamic "target_dns_servers" {
-    for_each = each.value.target_dns_servers
+    for_each = each.value
+    iterator = dns_server
     content {
-      ip_address = target_dns_servers.value
+      ip_address = dns_server.value
       port       = 53
     }
   }

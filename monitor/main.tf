@@ -10,6 +10,7 @@ resource "azurerm_log_analytics_workspace" "log_monitor" {
   resource_group_name = azurerm_resource_group.rg_monitor.name
   sku                 = "PerGB2018"
   retention_in_days   = 30
+  tags                = var.tags
 }
 
 resource "time_sleep" "wait_for_log_analytics_workspace_tables_are_ready" {

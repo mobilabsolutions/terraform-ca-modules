@@ -17,10 +17,15 @@ variable "allowed_tags" {
   type = map(list(string))
 }
 
-variable "top_mg_id" {
+variable "top_management_group_id" {
   description = "(Required) Top level Management group ID used for the Policy Assigment."
 }
 
-variable "landing_zone_mg_id" {
+variable "landing_zone_management_group_id" {
   description = "(Required) Landing Zones Management group ID used for the Policy Assigment."
+}
+
+variable "policy_assignment_enforcement_mode" {
+  description = "(Optional) Specifies the enforcement mode for the policy assignment."
+  type        = string
 }

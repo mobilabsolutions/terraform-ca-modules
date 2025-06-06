@@ -24,23 +24,14 @@ variable "environment" {
   description = "(Required) The environment name for the Azure resources names composition."
 }
 
-variable "bastion_enabled" {
-  description = "(Required) Specifies if the Azure Bastion should be enabled."
-
-  type    = bool
-  default = false
-}
-
 variable "bastion_subnet_id" {
   description = "(Required) The ID of the Azure bastion Subnet."
 }
 
 variable "resource_group_name" {
   description = "(Required) The name of the Resource Group for bastion."
-
 }
 
 variable "log_analytics_workspace_id" {
   description = "(Required) The Log Analytics Workspace ID of Management subscription."
-
 }

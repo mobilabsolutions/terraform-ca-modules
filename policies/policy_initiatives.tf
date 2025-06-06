@@ -3,7 +3,7 @@ resource "azurerm_policy_set_definition" "main_mg_mobilab_initiative" {
   policy_type         = "Custom"
   display_name        = "Aleksei Test - Main management group policy initiative"
   description         = "Recommended policy set for Azure resources"
-  management_group_id = "/providers/Microsoft.Management/managementGroups/${var.top_mg_id}"
+  management_group_id = "/providers/Microsoft.Management/managementGroups/${var.top_management_group_id}"
 
   metadata = <<METADATA
     {
@@ -253,7 +253,7 @@ resource "azurerm_policy_set_definition" "connected_mg_initiative" {
   policy_type         = "Custom"
   display_name        = "Aleksei Test - Connected policy initiative"
   description         = "Policy set for Azure resources for Connected subscription"
-  management_group_id = "/providers/Microsoft.Management/managementGroups/${var.top_mg_id}"
+  management_group_id = "/providers/Microsoft.Management/managementGroups/${var.top_management_group_id}"
 
   metadata = <<METADATA
     {

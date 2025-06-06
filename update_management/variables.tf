@@ -24,7 +24,6 @@ variable "time_zone" {
   description = "(Required) Specifies the timezone."
   type        = string
   default     = "Central European Standard Time"
-
 }
 
 variable "windows_classifications_to_include" {
@@ -64,6 +63,15 @@ variable "linux_package_names_mask_to_include" {
 }
 
 variable "start_time" {
-  description = "(Required) The start time for the maintenance configuration."
+  description = <<EOF
+      (Required) The start time for the maintenance configuration.
+      It should be in the format 'YYYY-MM-DD HH:MM'.
+      Example: '2025-06-02 23:00'.
+    EOF
   type        = string
+}
+
+variable "environments_list" {
+  description = "(Required) A list of environments to create dynamic scopes for."
+  type        = set(string)
 }

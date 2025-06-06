@@ -8,6 +8,7 @@ resource "azurerm_monitor_action_group" "ag-operations" {
   name                = "Operations-ActionGroup"
   resource_group_name = azurerm_resource_group.rg_alerts.name
   short_name          = "OperationsAG"
+  tags                = var.tags
 
   dynamic "email_receiver" {
     for_each = var.email_receivers
@@ -18,111 +19,221 @@ resource "azurerm_monitor_action_group" "ag-operations" {
   }
 }
 
-resource "azurerm_monitor_metric_alert" "metric_alert_vm_cpu_utilization_high" {
-  name                = "CPU Utilization is High"
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "vm_cpu_utilization_high" {
+  name                = "VM CPU utilization is High"
+  description         = "Alert when VM CPU utilization is above 80 percent"
+  location            = azurerm_resource_group.rg_alerts.location
   resource_group_name = azurerm_resource_group.rg_alerts.name
-  description         = "Metrics based Alert when the VM CPU utilization is above 80% for the last 15 minutes"
 
-  scopes                   = ["/subscriptions/${var.subscription_id}"]
-  target_resource_type     = "Microsoft.Compute/virtualMachines"
-  target_resource_location = azurerm_resource_group.rg_alerts.location
-
-  severity    = 2
-  frequency   = "PT5M"
-  window_size = "PT15M"
-  enabled     = true
+  scopes                  = [var.log_analytics_workspace_id]
+  severity                = 2
+  evaluation_frequency    = "PT5M"
+  window_duration         = "PT15M"
+  enabled                 = true
+  auto_mitigation_enabled = true
+  tags                    = var.tags
 
   criteria {
-    metric_namespace = "Microsoft.Compute/virtualMachines"
-    metric_name      = "Percentage CPU"
-    aggregation      = "Average"
-    operator         = "GreaterThan"
-    threshold        = 80
+    query                   = <<-QUERY
+      InsightsMetrics
+      | where TimeGenerated >= ago(15m)
+      | where Origin == "vm.azm.ms"
+      | where Namespace == "Processor" and Name == "UtilizationPercentage"
+      | summarize CPUPercentageAverage = avg(Val) by Computer, Namespace, Name, Tags
+      | where CPUPercentageAverage >= 80
+      QUERY
+    time_aggregation_method = "Count"
+    operator                = "GreaterThan"
+    threshold               = 0
+
+    dimension {
+      name     = "Computer"
+      operator = "Include"
+      values   = ["*"]
+    }
+    dimension {
+      name     = "Tags"
+      operator = "Include"
+      values   = ["*"]
+    }
+
+    dimension {
+      name     = "CPUPercentageAverage"
+      operator = "Include"
+      values   = ["*"]
+    }
+    failing_periods {
+      minimum_failing_periods_to_trigger_alert = 1
+      number_of_evaluation_periods             = 1
+    }
   }
 
   action {
-    action_group_id = azurerm_monitor_action_group.ag-operations.id
+    action_groups = [azurerm_monitor_action_group.ag-operations.id]
   }
 }
 
-resource "azurerm_monitor_metric_alert" "metric_alert_vm_cpu_utilization_critical" {
-  name                = "CPU Utilization is Critical"
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "vm_cpu_utilization_critical" {
+  name                = "VM CPU utilization is Critical"
+  description         = "Alert when VM CPU utilization is above 90 percent"
+  location            = azurerm_resource_group.rg_alerts.location
   resource_group_name = azurerm_resource_group.rg_alerts.name
-  description         = "Metrics based Alert when the VM CPU utilization is above 90% for the last 15 minutes"
 
-  scopes                   = ["/subscriptions/${var.subscription_id}"]
-  target_resource_type     = "Microsoft.Compute/virtualMachines"
-  target_resource_location = azurerm_resource_group.rg_alerts.location
-
-  severity    = 1
-  frequency   = "PT5M"
-  window_size = "PT15M"
-  enabled     = true
+  scopes                  = [var.log_analytics_workspace_id]
+  severity                = 1
+  evaluation_frequency    = "PT5M"
+  window_duration         = "PT1H"
+  enabled                 = true
+  auto_mitigation_enabled = true
+  tags                    = var.tags
 
   criteria {
-    metric_namespace = "Microsoft.Compute/virtualMachines"
-    metric_name      = "Percentage CPU"
-    aggregation      = "Average"
-    operator         = "GreaterThan"
-    threshold        = 90
+    query                   = <<-QUERY
+      InsightsMetrics
+      | where TimeGenerated >= ago(15m)
+      | where Origin == "vm.azm.ms"
+      | where Namespace == "Processor" and Name == "UtilizationPercentage"
+      | summarize CPUPercentageAverage = avg(Val) by Computer, Namespace, Name, Tags
+      | where CPUPercentageAverage >= 90
+      QUERY
+    time_aggregation_method = "Count"
+    operator                = "GreaterThan"
+    threshold               = 0
+
+    dimension {
+      name     = "Computer"
+      operator = "Include"
+      values   = ["*"]
+    }
+    dimension {
+      name     = "Tags"
+      operator = "Include"
+      values   = ["*"]
+    }
+
+    dimension {
+      name     = "CPUPercentageAverage"
+      operator = "Include"
+      values   = ["*"]
+    }
+    failing_periods {
+      minimum_failing_periods_to_trigger_alert = 1
+      number_of_evaluation_periods             = 1
+    }
   }
 
   action {
-    action_group_id = azurerm_monitor_action_group.ag-operations.id
+    action_groups = [azurerm_monitor_action_group.ag-operations.id]
   }
 }
 
-resource "azurerm_monitor_metric_alert" "metric_alert_vm_memory_utilization_high" {
-  name                = "Memory Utilization is High"
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "vm_memory_utilization_high" {
+  name                = "Memory utilization is High"
+  description         = "Alert when VM Memory utilization is above 80 percent"
+  location            = azurerm_resource_group.rg_alerts.location
   resource_group_name = azurerm_resource_group.rg_alerts.name
-  description         = "Metrics based Alert when the Free Memory less than 20% for the last 15 minutes"
 
-  scopes                   = ["/subscriptions/${var.subscription_id}"]
-  target_resource_type     = "Microsoft.Compute/virtualMachines"
-  target_resource_location = azurerm_resource_group.rg_alerts.location
-
-  severity    = 2
-  frequency   = "PT5M"
-  window_size = "PT15M"
-  enabled     = true
+  scopes                  = [var.log_analytics_workspace_id]
+  severity                = 2
+  evaluation_frequency    = "PT5M"
+  window_duration         = "PT15M"
+  enabled                 = true
+  auto_mitigation_enabled = true
+  tags                    = var.tags
 
   criteria {
-    metric_namespace = "Microsoft.Compute/virtualMachines"
-    metric_name      = "Available Memory Percentage"
-    aggregation      = "Average"
-    operator         = "LessThan"
-    threshold        = 20
+    query                   = <<-QUERY
+      InsightsMetrics
+      | where TimeGenerated >= ago(15m)
+      | where Origin == "vm.azm.ms"
+      | where Namespace == "Memory" and Name == "AvailableMB"
+      | extend TotalMemory = toreal(todynamic(Tags)["vm.azm.ms/memorySizeMB"]) | extend AvailableMemoryPercentage = (toreal(Val) / TotalMemory) * 100.0
+      | summarize AvailableMemoryInPercentageAverage = avg(AvailableMemoryPercentage) by Computer, Namespace, Name, Tags
+      | where AvailableMemoryInPercentageAverage <= 20
+      QUERY
+    time_aggregation_method = "Count"
+    operator                = "GreaterThan"
+    threshold               = 0
+
+    dimension {
+      name     = "Computer"
+      operator = "Include"
+      values   = ["*"]
+    }
+    dimension {
+      name     = "Tags"
+      operator = "Include"
+      values   = ["*"]
+    }
+
+    dimension {
+      name     = "AvailableMemoryInPercentageAverage"
+      operator = "Include"
+      values   = ["*"]
+    }
+    failing_periods {
+      minimum_failing_periods_to_trigger_alert = 1
+      number_of_evaluation_periods             = 1
+    }
   }
 
   action {
-    action_group_id = azurerm_monitor_action_group.ag-operations.id
+    action_groups = [azurerm_monitor_action_group.ag-operations.id]
   }
 }
 
-resource "azurerm_monitor_metric_alert" "metric_alert_vm_memory_utilization_critical" {
-  name                = "Memory Utilization is Critical"
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "vm_memory_utilization_critical" {
+  name                = "Memory utilization is Critical"
+  description         = "Alert when VM Memory utilization is above 80 percent"
+  location            = azurerm_resource_group.rg_alerts.location
   resource_group_name = azurerm_resource_group.rg_alerts.name
-  description         = "Metrics based Alert when the Free Memory less than 10% for the last 15 minutes"
 
-  scopes                   = ["/subscriptions/${var.subscription_id}"]
-  target_resource_type     = "Microsoft.Compute/virtualMachines"
-  target_resource_location = azurerm_resource_group.rg_alerts.location
-
-  severity    = 1
-  frequency   = "PT5M"
-  window_size = "PT15M"
-  enabled     = true
+  scopes                  = [var.log_analytics_workspace_id]
+  severity                = 1
+  evaluation_frequency    = "PT5M"
+  window_duration         = "PT15M"
+  enabled                 = true
+  auto_mitigation_enabled = true
+  tags                    = var.tags
 
   criteria {
-    metric_namespace = "Microsoft.Compute/virtualMachines"
-    metric_name      = "Available Memory Percentage"
-    aggregation      = "Average"
-    operator         = "LessThan"
-    threshold        = 10
+    query                   = <<-QUERY
+      InsightsMetrics
+      | where TimeGenerated >= ago(15m)
+      | where Origin == "vm.azm.ms"
+      | where Namespace == "Memory" and Name == "AvailableMB"
+      | extend TotalMemory = toreal(todynamic(Tags)["vm.azm.ms/memorySizeMB"]) | extend AvailableMemoryPercentage = (toreal(Val) / TotalMemory) * 100.0
+      | summarize AvailableMemoryInPercentageAverage = avg(AvailableMemoryPercentage) by Computer, Namespace, Name, Tags
+      | where AvailableMemoryInPercentageAverage <= 10
+      QUERY
+    time_aggregation_method = "Count"
+    operator                = "GreaterThan"
+    threshold               = 0
+
+    dimension {
+      name     = "Computer"
+      operator = "Include"
+      values   = ["*"]
+    }
+    dimension {
+      name     = "Tags"
+      operator = "Include"
+      values   = ["*"]
+    }
+
+    dimension {
+      name     = "AvailableMemoryInPercentageAverage"
+      operator = "Include"
+      values   = ["*"]
+    }
+    failing_periods {
+      minimum_failing_periods_to_trigger_alert = 1
+      number_of_evaluation_periods             = 1
+    }
   }
 
   action {
-    action_group_id = azurerm_monitor_action_group.ag-operations.id
+    action_groups = [azurerm_monitor_action_group.ag-operations.id]
   }
 }
 
@@ -138,15 +249,16 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "query_alert_vm_disk_s
   window_duration         = "PT1H"
   enabled                 = true
   auto_mitigation_enabled = true
+  tags                    = var.tags
 
   criteria {
     query                   = <<-QUERY
       InsightsMetrics
       | where TimeGenerated >= ago(15m)
+      | where Origin == "vm.azm.ms"
       | where Namespace == "LogicalDisk" and Name == "FreeSpacePercentage"
       | summarize MinimalValue = min(Val) by Computer, Namespace, Name, Tags
       | where MinimalValue <= 20
-      | project TimeGenerated=ago(0h), Computer, Namespace, Name, Tags, MinimalValue
       QUERY
     time_aggregation_method = "Count"
     operator                = "GreaterThan"
@@ -191,15 +303,16 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "query_alert_vm_disk_s
   window_duration         = "PT1H"
   enabled                 = true
   auto_mitigation_enabled = true
+  tags                    = var.tags
 
   criteria {
     query                   = <<-QUERY
       InsightsMetrics
       | where TimeGenerated >= ago(15m)
+      | where Origin == "vm.azm.ms"
       | where Namespace == "LogicalDisk" and Name == "FreeSpacePercentage"
       | summarize MinimalValue = min(Val) by Computer, Namespace, Name, Tags
       | where MinimalValue <= 10
-      | project TimeGenerated=ago(0h), Computer, Namespace, Name, Tags, MinimalValue
       QUERY
     time_aggregation_method = "Count"
     operator                = "GreaterThan"
@@ -244,6 +357,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "query_alert_failed_ba
   window_duration         = "P1D"
   enabled                 = true
   auto_mitigation_enabled = true
+  tags                    = var.tags
 
   criteria {
     query                   = <<-QUERY

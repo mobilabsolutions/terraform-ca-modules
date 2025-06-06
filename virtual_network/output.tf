@@ -28,6 +28,12 @@ output "location" {
   description = "The location/region of the Resource Group for Network."
 }
 
+output "location_abbreviation" {
+  value = var.location_abbreviation
+
+  description = "The abbreviation for the location of the Azure resources."
+}
+
 output "subnet_id" {
   value = { for name, subnet in azurerm_subnet.snet : name => subnet.id }
 
