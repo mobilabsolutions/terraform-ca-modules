@@ -237,7 +237,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "vm_memory_utilization
   }
 }
 
-resource "azurerm_monitor_scheduled_query_rules_alert_v2" "query_alert_vm_disk_space_high" {
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "vm_disk_space_high" {
   name                = "VM Disk space usage is High"
   description         = "Alert when VM Disk Free Space is less than 20 percent"
   location            = azurerm_resource_group.rg_alerts.location
@@ -291,7 +291,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "query_alert_vm_disk_s
   }
 }
 
-resource "azurerm_monitor_scheduled_query_rules_alert_v2" "query_alert_vm_disk_space_critical" {
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "vm_disk_space_critical" {
   name                = "VM Disk space usage is Critical"
   description         = "Alert when VM Disk Free Space is less than 10 percent"
   location            = azurerm_resource_group.rg_alerts.location
@@ -345,7 +345,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "query_alert_vm_disk_s
   }
 }
 
-resource "azurerm_monitor_scheduled_query_rules_alert_v2" "query_alert_failed_backup_jobs" {
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "failed_backup_jobs" {
   name                = "Scheduled Backup Jobs failed"
   description         = "Alert when Scheduled Backup Jobs have failed state"
   location            = azurerm_resource_group.rg_alerts.location

@@ -19,13 +19,15 @@ variable "allowed_tags" {
 
 variable "top_management_group_id" {
   description = "(Required) Top level Management group ID used for the Policy Assigment."
+  type        = string
 }
 
 variable "landing_zone_management_group_id" {
   description = "(Required) Landing Zones Management group ID used for the Policy Assigment."
+  type        = string
 }
 
 variable "policy_assignment_enforcement_mode" {
-  description = "(Optional) Specifies the enforcement mode for the policy assignment."
+  description = "(Required) Specifies the enforcement mode for the policy assignment."
   type        = string
 }
